@@ -2,25 +2,34 @@ import sys
 import time
 import threading
 
-from command_line_gui import CMD_GUI
+from utils.command_line_gui import CMD_GUI
 
 from PyQt5.QtCore import Qt, QObject, QThread
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtGui import QIcon, QPainter, QBrush, QPen, QColor
 
-from battery_free_device import BatteryfreeDevice
+from Battery_Free_Device.battery_free_device import BatteryfreeDevice
 
-lock = threading.Lock()
+lock = threading.Lock() # Semaphore for reading and updating data used by various threads
 
 class Worker(QObject):
+    """Class to handle compute on a separate thread from the display GUI to avoid display freezing issues.
+
+    Args:
+        battery_widgets (BatteryWidget): widget of the Battery-Free Device
+    """
+
     def __init__(self, battery_widgets):
         super().__init__()
         self.battery_widgets = battery_widgets
 
     def run(self):
+        """Updates the stats of the battery widgets every 0.1 secs to refresh the display with latest info. Freezes the display in place in the app's pause flag is set to True.
+        """
+
         while True:
             if not self.battery_widgets[0].app.pause_flag:
-                self.battery_widgets[0].update_connections()
+                self.battery_widgets[0].reset_connections()
 
                 for widget in self.battery_widgets:
                     widget.update_label()
@@ -29,6 +38,14 @@ class Worker(QObject):
             time.sleep(0.1)
 
 class BatteryWidget(QWidget):
+    """A container for the Battery-Free device. Has real-time info of all the stats of the device and also defines a display for it to be shown on the main window.
+
+    Args:
+        coordinates (tuple): (x, y) coordinates of the center of the widget wrt the reference frame of the main window
+        node (BatteryfreeDevice): 'BatteryfreeDevice' object associated with the device
+        label (string): current state of the the Battery-Free device ('OFF' or 'Bonito' or 'Find')
+        app (App): 'App' object (Main window)
+    """
     def __init__(self, coordinates, node, label, app, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setFixedSize(80, 120)
@@ -37,14 +54,24 @@ class BatteryWidget(QWidget):
         self.node = node
         self.label = label
         self.battery_level = 0
+        self.coordinates = coordinates
         self.max_battery_capacity = self.node.max_energy_per_cycle
         self.turn_on_threshold_level = int((self.node.energy_per_cycle/self.max_battery_capacity) * 100)
 
     @property
     def battery_level_percentage(self):
+        """Returns the percentage of current battery level
+
+        Returns:
+            (int): battery level in percentage
+        """
+
         return min(int((self.node.estored/self.max_battery_capacity) * 100), 100)
     
     def paintEvent(self, event):
+        """Draws the widget on the main window
+        """
+
         qp = QPainter(self)
         qp.setRenderHint(QPainter.Antialiasing)
 
@@ -68,13 +95,19 @@ class BatteryWidget(QWidget):
         qp.drawLine(-100, 12 + (100 - self.turn_on_threshold_level), 150, 12 + (100 - self.turn_on_threshold_level))
 
     def update_battery_level(self):
+        """Updates the battery level
+        """
+
         if not self.node.target_is_set: self.battery_level = 0
         else: self.battery_level = self.battery_level_percentage
         self.update()
         self.app.update()
 
     def update_label(self):
-        if not self.node.target_is_set:
+        """Updates the label (current state) and the connections associated with the current Battery-free device
+        """
+
+        if not self.node.target_is_set or self.node.currState == "Done":
             self.label.setText("OFF")
             return
         
@@ -93,29 +126,30 @@ class BatteryWidget(QWidget):
             else:
                 self.app.connections[(self.node.target_name, self.node.name)] = self.palette().color(self.backgroundRole()) 
 
-    def update_connections(self):
+    def reset_connections(self):
+        """Remove all the connections from the main window
+        """
+
         for k in self.app.connections:
             self.app.connections[k] = self.palette().color(self.backgroundRole())
 
 class App(QWidget):
+    """Main GUI Window
+
+    Args:
+        nodes (dict): dictionary of 'BatteryfreeDevice' of all devices in the simulation environment
+    """
+
     def __init__(self, nodes):
         super().__init__()
-        self.title = 'Bonito Network Simulator'
+        self.title = 'Battery-Free Network Simulator'
         self.left = 100
         self.top = 100
-        # self.width = 600
-        # self.height = 400
         self.width = 750
-        # self.height = 610
+
         self.nodes = nodes
         self.n_nodes = len(nodes)
         self.battery_widgets = []
-        # self.battery_coordinates = {1: (105, 125), 3: (410, 20)}
-
-        # if len(nodes) == 2: self.battery_coordinates = dict(zip(nodes.keys(), [(22, 125), (632, 125)]))
-        # elif len(nodes) == 3: self.battery_coordinates = dict(zip(nodes.keys(), [(22, 125), (632, 125), (327, 275)]))
-        # elif len(nodes) == 4: self.battery_coordinates = dict(zip(nodes.keys(), [(22, 125), (327, 125), (22, 275), (327, 275)]))
-        # elif len(nodes) == 5: self.battery_coordinates = dict(zip(nodes.keys(), [(22, 125), (632, 125), (327, 275), (22, 425), (632, 425)]))
 
         if self.n_nodes == 2: self.coordinates_arr = [(22, 125), (632, 125)]
         elif self.n_nodes == 3: self.coordinates_arr = [(327, 125), (632, 425), (22, 425)]
@@ -134,6 +168,9 @@ class App(QWidget):
         self.initUI()
         
     def paintEvent(self, event):
+        """Draws the main window and all the current connections between the devices
+        """
+
         qp = QPainter(self)
         qp.setRenderHint(QPainter.Antialiasing)
 
@@ -160,6 +197,9 @@ class App(QWidget):
             else: qp.drawLine(x2 + 40, y2 + 60, x1, y1 + 60)
 
     def longTask(self):
+        """Runs the computational tasks on separate Worker threads as they take a long time and freeze the display when run on the main thread
+        """
+
         self.thread = QThread()
         self.worker = Worker(self.battery_widgets)
         self.worker.moveToThread(self.thread)
@@ -167,6 +207,14 @@ class App(QWidget):
         self.thread.start()
 
     def initUI(self):
+        """Defines the simulator user interface (GUI)
+        1. Sets the title and geometry of the window.
+        2. Initializes all the labels and buttons.
+        3. Creates BatteryWidgets for all the devices and places them at specific coordinates.
+        4. Starts the longTask
+        5. Calls the show function to display the window
+        """
+
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
@@ -176,7 +224,6 @@ class App(QWidget):
         turn_on_label = QLabel('Turn-On Threshold', self)
         turn_on_label.move(80, 30)
 
-        # Create widgets
         label0 = QLabel('Node 0:', self)
         label0.move(230, 10)
         self.input0 = QLineEdit(self)
@@ -238,7 +285,6 @@ class App(QWidget):
             battery_label.move(self.battery_coordinates[node.name][0] + 15, self.battery_coordinates[node.name][1] - 25)
 
             state_label = QLabel(f'Bonito', self)
-            # state_label.move(self.battery_coordinates[node.name][0] + 15, self.battery_coordinates[node.name][1] + 150)
             state_label.move(self.battery_coordinates[node.name][0] + 15, self.battery_coordinates[node.name][1] + 150)
 
             battery_widget = BatteryWidget(self.battery_coordinates[node.name], node, state_label, self, self)
@@ -246,17 +292,15 @@ class App(QWidget):
 
             self.battery_widgets.append(battery_widget)
 
-            # if node.target_is_set and not ((node.name, node.target_name) in self.connections or (node.target_name, node.name) in self.connections):
-            #     self.connections[(node.name, node.target_name)] = self.palette().color(self.backgroundRole())
-
         # Add an icon for the window
-        # self.setWindowIcon(QIcon('bonito.jpeg'))
+        self.setWindowIcon(QIcon('bonito.jpeg'))
         self.longTask()
-
-
         self.show()
 
     def start(self):
+        """Starts the simulation by setting certain flags
+        """
+
         lock.acquire()
 
         for i in range(len(self.nodes)):
@@ -269,6 +313,9 @@ class App(QWidget):
         self.pause_flag = False
 
     def reset(self):
+        """Resets the entire simlation and the display GUI
+        """
+
         lock.acquire()
 
         for i in range(len(self.nodes)):
@@ -282,6 +329,9 @@ class App(QWidget):
         self.update()
 
     def pause(self):
+        """Pause the entire simlation and the display GUI
+        """
+
         lock.acquire()
 
         for i in range(len(self.nodes)):
@@ -293,6 +343,9 @@ class App(QWidget):
 
 
     def refresh(self):
+        """Refresh the simulator GUI window
+        """
+
         self.input0.clear()
         self.input1.clear()
         self.input2.clear()
@@ -302,7 +355,9 @@ class App(QWidget):
         self.update()
 
     def submit(self):
-        # Get input values
+        """Get user target inputs and update them accordingly
+        """
+
         input = [None for i in range(6)]
 
         input[0] = self.input0.text()
@@ -311,32 +366,6 @@ class App(QWidget):
         input[3] = self.input3.text()
         input[4] = self.input4.text()
         input[5] = self.input5.text()
-
-        # for i in range(self.n_nodes):
-        #     if input[i] != "":
-        #         node1 = self.nodes[f"node{i}"]
-        #         node2 = self.nodes[f"node{input[i]}"]
-
-        #         lock.acquire()
-
-        #         node1.target_is_set = False
-        #         node2.target_is_set = False
-
-
-        #         try: 
-        #             self.nodes[node1.target_name].target_is_set = False
-        #             self.nodes[node1.target_name].target_name = None
-        #         except: pass
-
-        #         try: 
-        #             self.nodes[node2.target_name].target_is_set = False
-        #             self.nodes[node2.target_name].target_name = None
-        #         except: pass
-
-        #         node1.target_name = None
-        #         node2.target_name = None
-
-        #         lock.release()
 
         for i in range(6):
             if input[i] != "":
@@ -353,7 +382,7 @@ class App(QWidget):
         if not self.first_submit: self.start()
         
 
-
+# Main function only used for develpoment purposes
 if __name__ == '__main__':
         cmd_gui = CMD_GUI()
 

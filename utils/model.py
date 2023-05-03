@@ -7,7 +7,7 @@ import multiprocessing
 from itertools import combinations
 import warnings
 
-import distributions as dists
+import utils.distributions as dists
 
 logger = logging.getLogger("model")
 logger.setLevel(logging.DEBUG)

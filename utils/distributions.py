@@ -2,8 +2,9 @@ import numpy as np
 from scipy.stats import expon
 from scipy.stats import norm
 import warnings
-from bisection import bisection
-from bisection import crit_lt, crit_abs, crit_gt
+
+from utils.bisection import bisection
+from utils.bisection import crit_lt, crit_abs, crit_gt
 
 
 class ProbabilityDistribution(object):

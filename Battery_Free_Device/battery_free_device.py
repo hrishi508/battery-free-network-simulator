@@ -1,9 +1,16 @@
+import sys
+import path
 import time
 import threading
-from utils import *
-from find import Find
-from tasks import task_mapping
-from distributions import inverse_joint_cdf
+
+# directory = path.Path(__file__).abspath() 
+# sys.path.append(directory.parent.parent)
+
+from utils.utils import *
+from utils.find import Find
+from utils.distributions import inverse_joint_cdf
+
+from Battery_Free_Device.tasks import task_mapping
 
 class BatteryfreeDevice(object):
     """Simple simulation model of a battery-free device.
@@ -146,6 +153,14 @@ class BatteryfreeDevice(object):
     
     def find(self):
         """Defines the FIND protocol. This function is executed when the node is in the 'Find' state.
+
+        1. Sets the node to sleep till wake up energy threshold is reached.
+        2. Checks if the target node is awake - If Yes, sets the state to 'Bonito' and returns.
+        3. If No, samples random sleep time according to Find.
+        4. Sets the node to sleep for sampled amount of time.
+        5. Waits for (max offset) time for the target node to wake up.
+        6. If the 'wait' function returns 'True', sets the state to 'Bonito' and returns.
+        7. Else, runs the dedicated task function, drains out energy till the turn-off threshold is reached and then resets.  
         """
 
         # Sleep till wake up energy threshold is reached
@@ -188,6 +203,10 @@ class BatteryfreeDevice(object):
     
     def bonito(self):
         """Defines the BONITO protocol. This function is executed when the node is in the 'Bonito' state.
+
+        1. Waits for (max offset) time for the target node to wake up.
+        2. If the 'wait' function returns 'True', tries to establish connection with the target node (Runs the Bonito logic).
+        3. If the 'wait function returns 'False' or the connection failed, sets the state to 'Find', runs the dedicated task function, drains out energy till the turn-off threshold is reached and then resets. 
         """
 
         # Wait for (max offset) time for the target node to wake up
@@ -239,6 +258,12 @@ class BatteryfreeDevice(object):
 
     def sleep(self):
         """Defines the sleep activity cycle for the node
+
+        1. Sets the awake status of current node to False.
+        2. Goes into a low power sleep state till the sleep conditions are met (and harvests energy meanwhile).
+        3. Wakes up after the sleep conditions are satisfied.
+        4. Logs latest charging time details
+        5. Sets the awake status of current node to True.
         """
 
         self.iteration += 1
@@ -270,9 +295,14 @@ class BatteryfreeDevice(object):
     def wait(self):
         """Defines the waiting for discovery cycle for the node
 
+        1. Waits till either wait time elapses or target node is discovered. Harvested energy is immediately consumed while waiting.
+        2. If target node is discovered, return True.
+        3. Else, return False.
+
         Returns:
             (boolean): Whether the current node discovered the target node (Yes - True, No - False)
         """
+        
         currState = self.currState
 
         # Wait till either wait time elapses or target node is discovered
@@ -338,5 +368,5 @@ class BatteryfreeDevice(object):
 
         # Iteration on the power trace completed. Marks the end of simulation for the current node. Reset it and change state to Find for GUI purposes.
         self.reset()
-        self.currState = "Find"
+        self.currState = "Done"
         print(f"{self.name} done at {time.time()}")

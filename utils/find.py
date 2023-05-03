@@ -4,8 +4,8 @@ import pandas as pd
 
 from scipy.optimize import minimize_scalar
 
-import distributions
-from model import Model
+import utils.distributions as distributions
+from utils.model import Model
 
 np.seterr(divide='ignore')
 

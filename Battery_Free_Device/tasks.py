@@ -5,27 +5,27 @@ The argument of the task function of a node is the 'BatteryfreeDevice' of that n
 '''
 
 def task0(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 0 Completed!\n")
     return
 
 def task1(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 1 Completed!\n")
     return
 
 def task2(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 2 Completed!\n")
     return
 
 def task3(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 3 Completed!\n")
     return
 
 def task4(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 4 Completed!\n")
     return
 
 def task5(curr_node):
-    curr_node.fp_rt_logs.write("Task Completed!\n")
+    curr_node.fp_rt_logs.write("Task 5 Completed!\n")
     return
 
 task_mapping = {

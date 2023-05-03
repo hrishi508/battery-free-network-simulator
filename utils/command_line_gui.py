@@ -1,5 +1,4 @@
 from tkinter import *
-from ast import literal_eval
 
 class CMD_GUI():
     def __init__(self):
@@ -8,7 +7,7 @@ class CMD_GUI():
 
         # Creating tkinter window
         self.root = Tk()
-        self.root.title("Bonito Simulator")
+        self.root.title("Battery-Free Network Simulator")
         self.root.geometry('400x550')
         
         # Misc Inputs LabelFrame
@@ -54,40 +53,40 @@ class CMD_GUI():
         label_frame_2 = LabelFrame(self.root, text='Bonito Parameters')
         label_frame_2.pack(expand='yes', fill='both')
 
-        label2 = Label(label_frame_2, text='Pair of Nodes')
+        label2 = Label(label_frame_2, text='Slot Length (in sec)')
         label2.place(x=0, y=5)
-
-        self.pair = Entry(label_frame_2)
-        self.pair.insert(0, "(1, 3)")
-        self.pair.place(x=150, y=0)
-
-        label3 = Label(label_frame_2, text='Slot Length (in sec)')
-        label3.place(x=0, y=35)
 
         self.slot_length = Entry(label_frame_2)
         self.slot_length.insert(0, "1e-5")
-        self.slot_length.place(x=150, y=30)
+        self.slot_length.place(x=150, y=0)
 
-        label4 = Label(label_frame_2, text='Target Probability')
-        label4.place(x=0, y=65)
+        label3 = Label(label_frame_2, text='Target Probability')
+        label3.place(x=0, y=35)
 
         self.target_probability = Entry(label_frame_2)
         self.target_probability.insert(0, "0.99")
-        self.target_probability.place(x=150, y=60)
+        self.target_probability.place(x=150, y=30)
 
-        label41 = Label(label_frame_2, text='Max Offset (in sec)')
-        label41.place(x=0, y=95)
+        label4 = Label(label_frame_2, text='Max Offset (in sec)')
+        label4.place(x=0, y=65)
 
         self.max_offset = Entry(label_frame_2)
         self.max_offset.insert(0, "0.000848")
-        self.max_offset.place(x=150, y=90)
+        self.max_offset.place(x=150, y=60)
 
-        label5 = Label(label_frame_2, text='Sim. Time (in min)')
-        label5.place(x=0, y=125)
+        label41 = Label(label_frame_2, text='Sim. Time (in min)')
+        label41.place(x=0, y=95)
 
         self.sim_time = Entry(label_frame_2)
         self.sim_time.insert(0, "10")
-        self.sim_time.place(x=150, y=120)
+        self.sim_time.place(x=150, y=90)
+
+        # label5 = Label(label_frame_2, text='')
+        # label5.place(x=0, y=125)
+
+        # self.sim_time = Entry(label_frame_2)
+        # self.sim_time.insert(0, "10")
+        # self.sim_time.place(x=150, y=120)
 
         # Battery-Free Device properties LabelFrame
         label_frame_3 = LabelFrame(self.root, text='Battery-Free Device properties')
@@ -135,7 +134,6 @@ class CMD_GUI():
         self.args["create_plots"] = True if self.create_plots.get() == "Yes" else False
         self.args["seed"] = int(self.seed.get())
 
-        self.args["pair"] = literal_eval(self.pair.get())
         self.args["slot_length"] = float(self.slot_length.get())
         self.args["target_probability"] = float(self.target_probability.get())
         self.args["max_offset"] = float(self.max_offset.get())
@@ -148,5 +146,6 @@ class CMD_GUI():
 
         self.root.destroy()
 
+# Main function only used for develpoment purposes
 if __name__=="__main__":
     CMD_GUI()
