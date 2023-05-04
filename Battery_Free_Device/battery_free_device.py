@@ -102,7 +102,7 @@ class BatteryfreeDevice(object):
 
         Args:
             target_name (string): Name of the target node
-            barrier (threading.Barrier): A synchronization obejct provided by the threading module used here as a means of simulating the event of a connection being established between two nodes (See threading.Barrier docs for more reference) 
+            barrier (threading.Barrier): A synchronization object provided by the threading module used here as a means of simulating the event of a connection being established between two nodes (See threading.Barrier docs for more reference) 
         """
 
         self.curr_conn_no = 0
