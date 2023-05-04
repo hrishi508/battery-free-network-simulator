@@ -27,6 +27,11 @@ n = np.random.randint(0, 1000)
 # Global dictionary containing the 'BatteryfreeDevice' objects of all the Battery-Free devices in the simulation environment 
 nodes = {}
 
+def waitForThreadsToJoin(threads):
+    for thread in threads.values():        
+        thread.join()
+
+
 def simulate(args):
     """Master thread of the simulation environment.
 
@@ -101,7 +106,7 @@ def simulate(args):
     for node in nodes.values():
         node.setup(pwr, dists, nodes, fp_rt_logs, events)
         threads[node.name] = threading.Thread(target=node.switchOn)
-
+    
     ''' Example to Set targets internally via master thread
 
     barrier1 = threading.Barrier(2)
@@ -111,12 +116,20 @@ def simulate(args):
     nodes['node2'].setTarget("node0", barrier1)
     nodes['node3'].setTarget("node4", barrier2)
     nodes['node4'].setTarget("node3", barrier2)
+
+    nodes['node0'].target_is_set = True
+    nodes['node2'].target_is_set = True
+    nodes['node3'].target_is_set = True
+    nodes['node4'].target_is_set = True
     '''
 
     print('Simulation started!')
-    
+
     for thread in threads.values():
         thread.start()
+
+    wait_thread = threading.Thread(target=waitForThreadsToJoin, args=(threads,))
+    wait_thread.start()
 
     ''' Example to Update targets internally via master thread
 
@@ -129,16 +142,16 @@ def simulate(args):
     nodes['node2'].setTarget("node4", barrier3)
     nodes['node3'].setTarget("node0", barrier4)
     nodes['node4'].setTarget("node2", barrier4)
+
+    nodes['node0'].target_is_set = True
+    nodes['node2'].target_is_set = True
+    nodes['node3'].target_is_set = True
+    nodes['node4'].target_is_set = True
     '''
 
-    for thread in threads.values():        
-        thread.join()
+    while (not cmd_gui.args["quit"]) and (time.time() - start < 2000): pass
         
     for file_pointer in fp_rt_logs.values(): file_pointer.close()
-    args['fp'] = None
-    args['fp_rt_logs'] = None
-    args['fp_conn'] = None
-    args['iteration'] = None
 
     succ = {}
     wakeup_count = {}
@@ -239,6 +252,7 @@ if __name__ == "__main__":
 
                 ex = App(nodes)
                 app.exec_()
+                cmd_gui.args["quit"] = True
                 for node in nodes.values():
                     lock.acquire()
                     node.iteration = cmd_gui.args["times_len"]
@@ -246,5 +260,10 @@ if __name__ == "__main__":
         except: pass
 
         t1.join()
+        
+        for node in nodes.values():
+            lock.acquire()
+            node.iteration = cmd_gui.args["times_len"]
+            lock.release()
 
 
