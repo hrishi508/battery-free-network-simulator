@@ -189,14 +189,16 @@ def simulate(args):
 
         fp.close()      
 
-        if args["create_plots"]:
-            ax = args["ax"]
-            ax.plot(node_conn_ints_arr, color="green", label="connection interval bonito")
-            ax.plot(node_bonito_tchrgs_arr, color="red", label="charging time")
-            ax.legend()
-            plt.savefig(args["output_dir"] + f"/{name}_plot.png")
-            ax.get_legend().remove()
-            plt.cla()
+        try:
+            if args["create_plots"]:
+                ax = args["ax"]
+                ax.plot(node_conn_ints_arr, color="green", label="connection interval bonito")
+                ax.plot(node_bonito_tchrgs_arr, color="red", label="charging time")
+                ax.legend()
+                plt.savefig(args["output_dir"] + f"/{name}_plot.png")
+                ax.get_legend().remove()
+                plt.cla()
+        except: pass
 
     end = time.time()
     print(f"Total Runtime: {end - start} s")
