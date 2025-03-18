@@ -1,239 +1,117 @@
-# Battery-Free-Network-Simulator
+# Battery-Free Network Simulator (HarvNet)
+
 <p align="center">
-<img align="centre" src="https://user-images.githubusercontent.com/68325029/166511635-ae09b469-2947-4181-9a73-9f2abc2efbe1.gif">
+<img width="651" alt="Screenshot 2025-03-18 at 7 34 29 AM" src="https://github.com/user-attachments/assets/8c6010e9-fdb9-4811-a812-1d67670f11df" />
 </p>
 
-# CS_F363-Compiler-Construction Project | BlockBusters
+[Simulation Demo](https://drive.google.com/file/d/1xVURLDKaRJLqKNzl3a4dBWNy6q_pbP3I/view?usp=sharing)
 
-# Description
-BlockBuster is a feature-packed, complete end-to-end tetris game engine that enables the user to design creative variants 2D tetris. It provides a comprehensive set of common tools, so that users can focus on bringing their imagination to life without having to reinvent the wheel. 
+## Overview
 
-Games can be exported with simple steps to a number of major desktop platforms (Linux, macOS). The engine is based on a brand new programming language "tetris-lang" (.tl) designed specifically for the coding of tetris games making it a lot more fluid and beginner friendly. "tetris-lang" is a step towards a paradigm shift where no prerequisite programming knowledge is required to get started on tetris game development. 
+The **Battery-Free Network Simulator** is a Python-based simulation framework designed to study computation across a network of intermittent, battery-free devices. This tool leverages the **Bonito protocol** to enable coordination of tasks across a dynamic network of energy-harvesting nodes. The simulator provides an interactive **Graphical User Interface (GUI)** for visualization and parameter tuning, along with programmatic control for detailed experimentation.
 
-So what are you waiting for, quickly get started on your tetris game development journey and we hope you have an immersive and fun experience using BlockBuster!!
+## Features
 
-# Directory Structure
+- **Bonito Protocol Implementation**: Translates the entire Bonito protocol into Python and validates it using real-world power traces.
+- **Task Coordination**: Enables execution of distributed tasks across battery-free nodes.
+- **Realistic Power Modeling**: Utilizes real-world power traces and various power models (Normal, Exponential, Gaussian Mixture) for accurate simulation.
+- **Multi-Threaded Execution**: Simulates each node in parallel with independent energy profiles and behaviors.
+- **Graphical & Command-Line Interfaces**: Provides a GUI for visualization and an interactive command-line interface (CLI) for control.
+- **Customizable Simulation Parameters**: Users can modify node behavior, power models, connection strategies, and more.
 
-The final package ready to be deployed is the [**tetrislang**](tetrislang) directory and contains all the required implementations of the compiler and also the engine files.
+## Repository Structure
+
 ```
-tetrislang/
-├── docs
-│   ├── engine.html
-│   └── index.html
-├── .gitignore
-├── README.md
-├── sample
-│   ├── game.py
-│   └── tetris.tl
-├── setup.py
-├── tetrislang
-│   ├── assets
-│   ├── bin
-│   │   └── tetris-lang
-│   ├── compiler.py
-│   ├── engine.py
-│   ├── __init__.py
-│   ├── parser.py
-│   ├── __pycache__
-│   └── scanner.py
-└── tetrislang.egg-info
-
-7 directories, 32 files
+📂 battery-free-network-simulator
+├── 📂 Battery_Free_Device
+│   ├── battery_free_device.py  # Core implementation of a battery-free node
+├── 📂 utils
+│   ├── distributions.py        # Implements power distributions (Normal, Exponential, GMM)
+│   ├── simulator_gui.py        # GUI implementation for visualization
+│   ├── command_line_gui.py     # CLI interface for simulation control
+│   ├── utils.py                # General utility functions
+│   ├── opt_scale.csv           # Optimization scale data
+├── 📂 data
+│   ├── power_trace_xxx.csv     # Real-world power traces used for simulation
+├── 📂 logs
+│   ├── runtime_logs_xxx.txt    # Logs of node activities during simulation
+│   ├── metadata_xxx.txt        # Summary of simulation results
+├── tasks.py                    # Defines tasks performed by each node
+├── simulate.py                 # Main script to run the simulation
+├── README.md                   # This file
 ```
-The above tree shows the overall structure of the tetrislang package.
-1. [**scanner.py**](tetrislang/tetrislang/scanner.py) contains the scanner code. It is present in "tetrislang/" inside the package.
-2. [**grammar.txt**](Assignment/misc/new_grammar.txt) contains the BNF grammar that was used to create the parser. Here is a link to the file.
-3. [**parser.py**](tetrislang/tetrislang/parser.py) contains the parser code. It is present in "tetrislang/" inside the package.
-4. [**compiler.py**](tetrislang/tetrislang/compiler.py) contains the final code that combines the scanner and parser. It is present in "tetrislang/" inside the package.
-5. [**engine.py**](tetrislang/tetrislang/engine.py) contains the python framework for the Tetris game. It is present in "tetrislang/" inside the package.
-6. [**tetris.tl**](tetrislang/sample/tetris.tl) is a sample code written in "tetris-lang". It is present in "sample/" inside the package.
-7. [**game.py**](tetrislang/sample/game.py) is the executable output that is generated after compiling tetris.tl. It is present in "sample/" inside the package.
 
-Note: The [**Assignment**](Assignment) directory served as a playground for the team to try and test out different ideas and features for the project. The final package ready for use is the [**tetrislang**](tetrislang) directory.
+## Installation & Setup
 
-# Installation and Environment Setup
+### Prerequisites
 
-## Build Requirements:
+Ensure you have the following dependencies installed:
 
-* Python 3.6.9+
-* pip 9.0.1
+- Python 3.8+
+- NumPy
+- Matplotlib
+- PyQt5
 
-## Runtime Requirements:
+### Installation Steps
 
-* Pygame 2.1.2
-* sly 0.4
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/battery-free-network-simulator.git
+   cd battery-free-network-simulator
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Using host OS environment:
-1. Check to see if your Python installation has pip. Enter the following in your terminal:
+## Usage
 
-        pip3 -h
-        
-     If you see the help text for pip then you have pip installed, otherwise [download and install pip](https://pip.pypa.io/en/latest/installing.html)
+### Running the Simulation
 
-2. Clone the repo from GitHub and install the tetrislang package
+To start the simulator, run:
 
-      Mac OS / Linux
-        
-        git clone https://github.com/aryan02420/CS_F363-Compiler-Construction.git
-        cd CS_F363-Compiler-Construction/tetrislang/
-        pip3 install -e .
-        
-<!--      Windows
-     
-        git clone https://github.com/aryan02420/CS_F363-Compiler-Construction.git
-        cd CS_F363-Compiler-Construction\tetrislang\
-        pip3 install -e . -->
+```bash
+python3 simulate.py
+```
 
+This launches the interactive CLI. If GUI mode is enabled, the graphical interface will open.
 
-## Using a virtual environment:
-1. Check to see if your Python installation has pip. Enter the following in your terminal:
+### Configuring Simulation Parameters
 
-        pip3 -h
-        
-     If you see the help text for pip then you have pip installed, otherwise [download and install pip](https://pip.pypa.io/en/latest/installing.html)
+Modify `simulate.py` or use the command-line prompts to:
 
-2. Install the virtualenv package
+- Set power trace files
+- Choose power models (Normal, Exponential, GMM)
+- Enable/disable the GUI
+- Adjust simulation duration
 
-        pip3 install virtualenv
-        
-3. Create the virtual environment
+### Viewing Logs & Results
 
-        virtualenv tetrisenv
-        
-4. Activate the virtual environment
+Simulation logs are stored in the `logs/` directory. Metadata files provide:
 
-      Mac OS / Linux
-        
-        source tetrisenv/bin/activate
-        
-<!--      Windows
-     
-        tetrisenv\Scripts\activate -->
+- Number of successful connections
+- Wake-up counts
+- Success rates
+- Connection delays
 
-5. Clone the repo from GitHub and install the tetrislang package
+Plots of connection intervals and charging times are saved in the output directory.
 
-      Mac OS / Linux
-        
-        git clone https://github.com/aryan02420/CS_F363-Compiler-Construction.git
-        cd CS_F363-Compiler-Construction/tetrislang/
-        pip3 install -e .
-        
-     Windows
-     
-        git clone https://github.com/aryan02420/CS_F363-Compiler-Construction.git
-        cd CS_F363-Compiler-Construction\tetrislang\
-        pip3 install -e .
+## Example Applications
 
-# How to create a new game
-1. Write the "tetris-lang" game code (.tl file). Refer the [documentation](#documentation) section for language syntax and functionalities offered by the engine.
-2. Compiling the code written above will generate an executable output file.
+- **Data Ferrying**: Nodes coordinate to transfer data intermittently across the network.
+- **Network Awareness**: Nodes adapt their behavior based on power availability and network conditions.
 
-        tetris-lang <path to the .tl file>
-        
-   The above code will create an executable by the name "game.py" in the current directory.
-      
-   You can use the "-o" to set the output file path.
-        
-        tetris-lang <path to the .tl file> -o <path of the executable output>
-        
-3. To start the game immediately after compilation, use the "-e" flag.
-        
-        tetris-lang <path to the .tl file> -e
-        
-   Or you can also run the generated executable file as follows:
-   
-        ./<path of the executable output>
+## Future Work
 
-# Demo:
-<insert, screenrecording and examples of running>
+- Extending the Bonito protocol to support more complex task coordination
+- Integration with real-world hardware experiments
+- Enhancing visualization tools for deeper analysis
 
-# Documentation:
+## License
 
-All documentation regarding the game programming language can be found [here](https://aryan02420.github.io/CS_F363-Compiler-Construction/tetrislang/docs/). It primarily consists of two parts:
-* Syntax documentation of the tetris language: [tetris-lang Programmers Guide](https://aryan02420.github.io/CS_F363-Compiler-Construction/tetrislang/docs/)
-* Documentation of the game engine functions: [BlockBuster docs](https://aryan02420.github.io/CS_F363-Compiler-Construction/tetrislang/docs/engine.html)
-<!-- * [Latest Release Note](https://github.com/cocos2d/cocos2d-x/blob/v4/docs/RELEASE_NOTES.md)
-* [Changelog](https://github.com/cocos2d/cocos2d-x/blob/v4/CHANGELOG) -->
-    
-<!-- # Current State of the Project
+This project is licensed under the MIT License.
 
-**Important notice**: Gameplay is currently non-functional as the internal simulation is replaced by a more sophisticated implementation. You also might experience errors when running a build. Gameplay will return in a later update. Detailed explanations can be found in this [blog post](https://blog.openage.dev/new-gamestate-2020.html).
+---
 
-* What features are currently implemented?
-    * See [status page](https://github.com/SFTtech/openage/projects).
+For any questions or suggestions, feel free to open an issue or contact [me](k.hrishi2010@gmail.com)
 
-* What's the plan?
-    * See [doc/milestones.md](/doc/milestones.md). We also have [lists of crazy xor good ideas](/doc/ideas) and a [technical overview for requested features](/doc/ideas/fr_technical_overview.md). -->
-
-<!-- # Future Plans of the project: -->
-
-# Free and open source
-BlockBuster is completely free and open source under the very permissive MIT license. No strings attached, no royalties, nothing. The users' games are theirs, down to the last line of engine code. BlockBuster's development is fully independent, empowering users to help shape their engine to match their expectations.    
-    
-# Contributing to the project
-
-You might ask yourself now "Yeah, this sounds cool and all, but how do *I* participate
-and ~~get famous~~ contribute useful features?".
-
-Fortunately for you, there is a lot to do and we are very grateful for help.
-
-## Where do I start?
-
-<!-- * The engine has several [core parts](https://github.com/SFTtech/openage/projects) that need help.
-  You can look at the project related issues and find something for you, for example:
-    * **Asset Converter:** Converts whatever properietary format used by a Age of Empires 2 into
-    open formats. Written mostly in Python 3. There are a lot of TODOs and beginner issues available
-    right now, so it's a good place to get your feet wet.
-    * **Game simulation:** Also known as the gameplay implementation. Written in C++, using the
-    Entity-Component-System paradigm in addition to an event-driven simulation.
-    * **Documentation:** We not only document code, but also anything technical about the Genie engine
-    and its games. If you like documenting [file formats](/doc/media)
-    or thouroughly investigating [game mechanics](/doc/reverse_engineering),
-    then this might be the right place to start.
-* **Check the issues** [labelled with good first issues](https://github.com/SFTtech/openage/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). These are tasks that you can start right away
-  and don't require much previous knowledge. -->
-* **Ask us** by reaching out to any of the contributors through the [Contact Us](#contact-us) section. Someone there could need
-  help with something.
-* You can also **take the initiative** and fix a bug you found, create an issue for discussion or
-  implement a feature that we never though of, but always wanted.
-
-## Ok, I found something. What now?
-
-* **[Tell us](#contact-us)**, if you haven't already. Chances are that we have additional information
-  and directions.
-* **[Read the docs](#documentation)**. They will answer most "administrative"
-  questions like what code style is used and how the engine core parts are connected.
-* **Read the code** and get familiar with the engine component you want to work with.
-* Do not hesitate to **[ask us for help](#contact-us)** if you do not understand something.
-
-
-## How do I contribute my features/changes?
-
-<!-- * Read the **[contributing guide](/doc/contributing.md)**. -->
-* You can upload work in progress (WIP) revisions or drafts of your contribution to get feedback or support.
-* Tell us (again) when you want us to review your work.
-
-<!-- ## I want to help, but I'm not a programmer...
-
-Then openage might be a good reason to become one! We have many issues and tasks for beginners. You
-just have to ask and we'll find something. Alternatively, lurking is also allowed. -->
-       
-<!-- # Spreading the word!
-
-You can help us spread the word about BlockBuster! We would surely appreciate it!
-
-* Talk about us on Facebook! Our [Facebook Page]()
-* Tweet, Tweet! Our [Twitter]()
-* Read our [Blog]() and promote it on your social media. -->
-    
-    
-# Contact us
-
-* Hrishikesh Kusneniwar - [hrishi508](https://github.com/hrishi508)
-* Hardik Shah - [hardik01shah](https://github.com/hardik01shah)
-* Hitarth Kothari - [hitarthk9](https://github.com/hitarthk9)
-* Abhineet Karn - [dootdoot1111](https://github.com/dootdoot1111)
-* Abhinav Srivastava - [Abhinav-2405](https://github.com/Abhinav-2405)
-* Aryan Tyagi - [aryan02420](https://github.com/aryan02420)
-
-### *Cheers, BlockBusters*
